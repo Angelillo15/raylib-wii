@@ -1,0 +1,6 @@
+{
+	"name": "Raylib Wii",
+	"build": {
+		"dockerfile": "Dockerfile"
+	}
+}

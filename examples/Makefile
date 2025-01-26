@@ -142,6 +142,14 @@ ifeq ($(TARGET_PLATFORM),PLATFORM_DRM)
         PLATFORM_OS = LINUX
     endif
 endif
+ifeq ($(TARGET_PLATFORM), PLATFORM_WII)
+    UNAMEOS = $(shell uname)
+    ifeq ($(UNAMEOS),Linux)
+        PLATFORM_OS = LINUX
+    endif
+    RAYLIB_LIBTYPE = STATIC
+    USE_EXTERNAL_GLFW = TRUE
+endif
 
 # RAYLIB_PATH adjustment for LINUX platform
 # TODO: Do we really need this?
@@ -191,6 +199,16 @@ ifeq ($(TARGET_PLATFORM),$(filter $(TARGET_PLATFORM),PLATFORM_WEB PLATFORM_WEB_R
     # WARNING: To compile to HTML5, code must be redesigned
     # to use emscripten.h and emscripten_set_main_loop()
     CC = emcc
+endif
+ifeq ($(TARGET_PLATFORM),PLATFORM_WII)
+    ifeq ($(strip $(DEVKITPRO)),)
+        $(error "Please, set DEVKITPRO environment variable pointing to your devkitPro installation")
+    endif
+    ifeq ($(strip $(DEVKITPPC)),)
+        $(error "Please, set DEVKITPPC environment variable pointing to your devkitPPC installation")
+    endif
+    
+    CC = $(DEVKITPPC)/bin/powerpc-eabi-gcc
 endif
 
 # Define default make program: MAKE
@@ -274,7 +292,12 @@ endif
 #------------------------------------------------------------------------------------------------
 INCLUDE_PATHS = -I. -I$(RAYLIB_PATH)/src -I$(RAYLIB_PATH)/src/external $(EXTRA_INCLUDE_PATHS)
 # Define additional directories containing required header files
+ifeq ($(TARGET_PLATFORM),PLATFORM_WII)
+    LIBDIRS := $(PORTLIBS)
 
+    ifeq ($(PLATFORM_OS), LINUX)
+        INCLUDE_PATHS += -I$(DEVKITPRO)/libogc/include -I$(SDL_INCLUDE_PATH)
+endif
 ifeq ($(TARGET_PLATFORM),PLATFORM_DESKTOP_GLFW)
     ifeq ($(PLATFORM_OS),BSD)
         INCLUDE_PATHS += -I$(RAYLIB_INCLUDE_PATH) -I/usr/pkg/include -I/usr/X11R7/include
@@ -492,7 +515,10 @@ ifeq ($(TARGET_PLATFORM),$(filter $(TARGET_PLATFORM),PLATFORM_WEB PLATFORM_WEB_R
     # Libraries for web (HTML5) compiling
     LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.web.a
 endif
-
+ifeq ($(TARGET_PLATFORM),PLATFORM_WII)
+    # Libraries for Android compiling
+    LDLIBS = -lraylib -lraylib $(SDL_LIBRARIES) -lGL -lm -lpthread -ldl -lrt
+endif
 # Define source code object files required
 #------------------------------------------------------------------------------------------------
 CORE = \
@@ -657,12 +683,14 @@ AUDIO = \
     audio/audio_sound_multi \
     audio/audio_stream_effects
 
+ifneq ($(TARGET_PLATFORM),PLATFORM_WII)
 OTHERS = \
     others/easings_testbed \
     others/embedded_files_loading \
     others/raylib_opengl_interop \
     others/raymath_vector_angle \
     others/rlgl_compute_shader
+endif
 
 ifeq ($(TARGET_PLATFORM), PLATFORM_DESKTOP_GFLW)
     OTHERS += others/rlgl_standalone

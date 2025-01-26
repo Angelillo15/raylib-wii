@@ -68,6 +68,7 @@
 *     3. This notice may not be removed or altered from any source distribution.
 *
 **********************************************************************************************/
+#if defined(AUDIO_ENABLE)
 
 #if defined(RAUDIO_STANDALONE)
     #include "raudio.h"
@@ -177,7 +178,7 @@ typedef struct tagBITMAPINFOHEADER {
 
 #define MINIAUDIO_IMPLEMENTATION
 //#define MA_DEBUG_OUTPUT
-#include "external/miniaudio.h"         // Audio device initialization and management
+// #include "external/miniaudio.h"         // Audio device initialization and management
 #undef PlaySound                        // Win32 API: windows.h > mmsystem.h defines PlaySound macro
 
 #include <stdlib.h>                     // Required for: malloc(), free()
@@ -2874,3 +2875,4 @@ static bool SaveFileText(const char *fileName, char *text)
 #undef AudioBuffer
 
 #endif      // SUPPORT_MODULE_RAUDIO
+#endif      // ENABLE_RAUDIO

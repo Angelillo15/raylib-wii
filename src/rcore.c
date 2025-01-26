@@ -547,6 +547,8 @@ const char *TextFormat(const char *text, ...);              // Formatting of tex
     #include "platforms/rcore_desktop_glfw.c"
 #elif defined(PLATFORM_DESKTOP_SDL)
     #include "platforms/rcore_desktop_sdl.c"
+#elif (defined(PLATFORM_WII))
+    #include "platforms/rcore_wii_sdl.c"
 #elif (defined(PLATFORM_DESKTOP_RGFW) || defined(PLATFORM_WEB_RGFW))
     #include "platforms/rcore_desktop_rgfw.c"
 #elif defined(PLATFORM_WEB)
@@ -614,6 +616,8 @@ void InitWindow(int width, int height, const char *title)
 
 #if defined(PLATFORM_DESKTOP_GLFW)
     TRACELOG(LOG_INFO, "Platform backend: DESKTOP (GLFW)");
+#elif defined(PLATFORM_WII)
+    TRACELOG(LOG_INFO, "Platform backend: WII (SDL)");
 #elif defined(PLATFORM_DESKTOP_SDL)
     TRACELOG(LOG_INFO, "Platform backend: DESKTOP (SDL)");
 #elif defined(PLATFORM_DESKTOP_RGFW)
