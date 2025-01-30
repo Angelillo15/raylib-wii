@@ -2054,12 +2054,8 @@ void rlClearColor(unsigned char r, unsigned char g, unsigned char b, unsigned ch
 // Clear used screen buffers (color and depth)
 void rlClearScreenBuffers(void)
 {
-    #ifdef PLATFORM_WII
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
-    #else
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     // Clear used buffers: Color and Depth (Depth is used for 3D)
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);     // Stencil buffer not used...    
-    #endif
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);     // Stencil buffer not used...
 }
 
 // Check and log OpenGL error codes

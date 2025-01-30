@@ -7,6 +7,8 @@ RUN apt-get update && apt-get upgrade -y && \
   apt-get install -y --no-install-recommends sudo ca-certificates pkg-config curl wget bzip2 xz-utils make libarchive-tools doxygen gnupg && \
   apt-get install -y --no-install-recommends git git-restore-mtime && \
   apt-get install -y --no-install-recommends rsync && \
+  apt-get install -y --no-install-recommends libbluetooth-dev && \
+  apt-get install -y --no-install-recommends g++-multilib && \
   apt-get install -y --no-install-recommends cmake zip unzip ninja-build && \
   apt-get install -y --no-install-recommends python3 python-is-python3 python3-lz4 && \
   apt-get install -y --no-install-recommends locales && \
@@ -34,8 +36,8 @@ ENV PATH=${DEVKITPRO}/tools/bin:$PATH
 ENV PATH=${DEVKITPRO}/devkitPPC/bin/:$PATH
 
 RUN dkp-pacman -Syyu --noconfirm gamecube-dev wii-dev wii-sdl2 && \
-  dkp-pacman -S --needed --noconfirm ppc-portlibs gamecube-portlibs wii-portlibs && \
-  dkp-pacman -S --needed --noconfirm devkitARM && \
+  dkp-pacman -S --needed --noconfirm ppc-portlibs gamecube-portlibs ppc-freetype wii-portlibs && \
+  dkp-pacman -S --needed --noconfirm devkitARM wii-sdl_ttf && \
   yes | dkp-pacman -Scc
 
 ENV DEVKITPPC=${DEVKITPRO}/devkitPPC

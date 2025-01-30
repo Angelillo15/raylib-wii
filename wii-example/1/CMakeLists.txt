@@ -9,22 +9,30 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl2 SDL2_ttf SDL2_image SDL2_mixer)
 
 # Configurar rutas ABSOLUTAS
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${DEVKITPRO}/portlibs/wii/include/SDL2 ${DEVKITPRO}/portlibs/wii/include/ ${DEVKITPRO}/devkitPPC/powerpc-eabi/include/)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${DEVKITPRO}/portlibs/wii/include/SDL2 ${DEVKITPRO}/portlibs/wii/include/ ${DEVKITPRO}/devkitPPC/powerpc-eabi/include/ ${DEVKITPRO}/portlibs/wii/include/GL)
 
 # Importar biblioteca estática con verificación explícita
 add_library(raylib STATIC IMPORTED)
 
 # Verifica que el archivo exista ANTES de configurar la ubicación
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/raylib.a")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a")
     set_target_properties(raylib PROPERTIES
-        IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/raylib.a"
+        IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a"
     )
 else()
-    message(FATAL_ERROR "raylib.a no encontrado en: ${CMAKE_CURRENT_SOURCE_DIR}/lib/")
+    message(FATAL_ERROR "libraylib.a no encontrado en: ${CMAKE_CURRENT_SOURCE_DIR}/lib/")
 endif()
 
+include_directories(
+    ${DEVKITPRO}/libogc/include/
+    ${DEVKITPRO}/portlibs/wii/include/
+    ${DEVKITPRO}/portlibs/wii/include/GL/
+    ${DEVKITPRO}/portlibs/wii/include/SDL2
+    ${DEVKITPRO}/devkitPPC/powerpc-eabi/include/
+)
+
 set_target_properties(raylib PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/raylib.a"
+    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/libraylib.a"
 )
 
 set(PROG "WiiControllerTest")
@@ -57,13 +65,17 @@ target_link_libraries(${PROG} PUBLIC
     raylib
 )
 
-if(NINTENDO_WII)
-    target_compile_definitions(${PROG} PRIVATE
-        NINTENDO_WII
-    )
 
-    ogc_create_dol(${PROG})
-endif()
+target_compile_options(${PROG} PRIVATE
+    $<$<CONFIG:Debug>:-g -Og>  # -g para símbolos de depuración, -Og para optimización
+    -Wall -Wextra              # Advertencias adicionales
+)
+
+target_compile_definitions(${PROG} PRIVATE
+    NINTENDO_WII
+)
+
+# ogc_create_dol(${PROG})
 
 set(CMAKE_C_FLAGS_DEBUG "-g -Og -Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Og -Wall -Wextra")

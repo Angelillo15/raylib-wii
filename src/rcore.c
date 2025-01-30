@@ -901,7 +901,7 @@ void EndDrawing(void)
 {
     rlDrawRenderBatchActive();      // Update and draw internal render batch
 
-#if defined(SUPPORT_GIF_RECORDING)
+#if defined(SUPPORT_GIF_RECORDING) && !defined(PLATFORM_WII)
     // Draw record indicator
     if (gifRecording)
     {
@@ -942,7 +942,7 @@ void EndDrawing(void)
     }
 #endif
 
-#if defined(SUPPORT_AUTOMATION_EVENTS)
+#if defined(SUPPORT_AUTOMATION_EVENTS) && !defined(PLATFORM_WII)
     if (automationEventRecording) RecordAutomationEvent();    // Event recording
 #endif
 
@@ -971,10 +971,10 @@ void EndDrawing(void)
     PollInputEvents();      // Poll user events (before next frame update)
 #endif
 
-#if defined(SUPPORT_SCREEN_CAPTURE)
+#if defined(SUPPORT_SCREEN_CAPTURE) && !defined(PLATFORM_WII)
     if (IsKeyPressed(KEY_F12))
     {
-#if defined(SUPPORT_GIF_RECORDING)
+#if defined(SUPPORT_GIF_RECORDING) && !defined(PLATFORM_WII)
         if (IsKeyDown(KEY_LEFT_CONTROL))
         {
             if (gifRecording)

@@ -104,49 +104,53 @@ elseif ("${PLATFORM}" MATCHES "SDL")
     find_package(SDL2 REQUIRED)
     set(PLATFORM_CPP "PLATFORM_DESKTOP_SDL")
     set(LIBS_PRIVATE SDL2::SDL2)
+    set(OPENGL_INCLUDE_DIR ${DEVKITPRO}/portlibs/wii/include/GL)
+    include(${DEVKITPRO}/portlibs/wii/lib/cmake/OpenGL/OpenGLConfig.cmake)
 
-elseif ("${PLATFORM}" MATCHES "WII")
+    elseif ("${PLATFORM}" MATCHES "WII")
     set(THREADS_PREFER_PTHREAD_FLAG OFF)
     set(PLATFORM_CPP "PLATFORM_WII")
-    set(GRAPHICS "GRAPHICS_API_SDL")
-    set(USE_AUDIO, "OFF")
+    set(GRAPHICS "GRAPHICS_API_OPENGL_11")
+    set(USE_AUDIO OFF) # Removed the extra comma causing syntax issues
 
+    # Add platform-specific definitions
     add_definitions(-DPLATFORM_WII)
     remove_definitions(-DMA_NO_PTHREAD_IN_HEADER)
+    remove_definitions(-DSUPPORT_GIF_RECORDING)
+    remove_definitions(-DSUPPORT_COMPRESSION_API)
+    remove_definitions(-DSUPPORT_SCREEN_CAPTURE)
 
-    include_directories(${DEVKITPPC}/libogc/include/ ${DEVKITPRO}/portlibs/wii/include/SDL2 ${DEVKITPRO}/portlibs/wii/include/ ${DEVKITPRO}/devkitPPC/powerpc-eabi/include/)
+    # Include directories
+    include_directories(
+        ${DEVKITPRO}/libogc/include/
+        ${DEVKITPRO}/portlibs/wii/include/
+        ${DEVKITPRO}/portlibs/wii/include/GL/
+        ${DEVKITPRO}/portlibs/wii/include/SDL2
+        ${DEVKITPRO}/devkitPPC/powerpc-eabi/include/
+    )
 
-    find_library(SDL_LIB SDL PATHS ${DEVKITPRO}/portlibs/wii/lib)
-    find_library(SDL_TTF_LIB SDL_ttf PATHS ${DEVKITPRO}/portlibs/wii/lib)
-    find_library(FREETYPE_LIB SDL2_ttf PATHS ${DEVKITPRO}/portlibs/wii/lib)
+    # Locate required libraries
+    find_library(SDL_LIB NAMES libSDL2 SDL PATHS ${DEVKITPRO}/portlibs/wii/lib REQUIRED)
+    find_library(SDL_TTF_LIB SDL2_ttf PATHS ${DEVKITPRO}/portlibs/wii/lib REQUIRED)
+    find_library(FREETYPE_LIB freetype PATHS ${DEVKITPRO}/portlibs/ppc/lib REQUIRED)
+    find_library(OPENGX_LIB opengx PATHS ${DEVKITPRO}/portlibs/wii/lib REQUIRED)
 
-    if (NOT SDL_LIB OR NOT SDL_TTF_LIB OR NOT FREETYPE_LIB)
-        message(FATAL_ERROR "No se encontraron las librerías necesarias para Wii.")
+    # Ensure all libraries are found
+    if (NOT SDL_LIB OR NOT SDL_TTF_LIB OR NOT FREETYPE_LIB OR NOT OPENGX_LIB)
+        message(FATAL_ERROR "Required libraries for Wii platform not found.")
     endif()
 
+    # Link private libraries to the target
+    set(LIBS_PRIVATE ${SDL_LIB} ${SDL_TTF_LIB} ${FREETYPE_LIB} ${OPENGX_LIB})
+
+    # Add private libraries for the linker
+
+    # Include OpenGL and SDL2 using PkgConfig
     find_package(PkgConfig REQUIRED)
-    pkg_check_modules(SDL2 REQUIRED IMPORTED_TARGET sdl SDL_ttf freetype2)
 
-    set(LIBS_PRIVATE ${SDL_LIB} ${SDL_TTF_LIB} ${FREETYPE_LIB})
-
-    link_libraries(${LIBS_PRIVATE} PkgConfig::SDL2)
-
-    # # Establecer modo de compilación por defecto
-    # if(NOT CMAKE_BUILD_TYPE)
-    # set(CMAKE_BUILD_TYPE Debug)
-    # endif()
-
-    # # Definir flags de depuración para DevkitPPC
-    # set(CMAKE_C_FLAGS_DEBUG "-g -Og")
-    # set(CMAKE_CXX_FLAGS_DEBUG "-g -Og")
-
-    # # Opcional: optimización mínima para facilitar depuración
-    # set(CMAKE_C_FLAGS_RELEASE "-O2")
-    # set(CMAKE_CXX_FLAGS_RELEASE "-O2")
-
-    # # Agregar flags para mejor debug de Wii
-    # add_compile_options(-g3 -Og -Wall -Wextra)
+    link_libraries(${LIBS_PRIVATE})
 endif ()
+
 
 
 if (NOT ${OPENGL_VERSION} MATCHES "OFF")

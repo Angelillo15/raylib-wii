@@ -52,7 +52,7 @@
 #ifndef SDL_ENABLE_OLD_NAMES
     #define SDL_ENABLE_OLD_NAMES    // Just in case we're on SDL3, we need some in-between compatibily
 #endif
-#include "SDL.h"                // SDL base library (window/rendered, input, timing... functionality)
+#include <SDL2/SDL.h>                // SDL base library (window/rendered, input, timing... functionality)
 
 #if defined(GRAPHICS_API_OPENGL_ES2)
     // It seems it does not need to be included to work
